@@ -16,13 +16,14 @@ class MapController: UIViewController {
     
     var mapView: MKMapView!
     var locationManager: CLLocationManager!
-
+    var searchInputView: SearchInputView!
 
     // MARK: - Init
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureViewComponents()
+        enableLocationServices()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -34,10 +35,11 @@ class MapController: UIViewController {
     // viewの構成要素
     func configureViewComponents() {
         view.backgroundColor = .white
-        
         configureMapView()
-        enableLocationServices()
         
+        searchInputView = SearchInputView()
+        view.addSubview(searchInputView)
+        searchInputView.anchor(top: nil, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: -(view.frame.height - 88), paddingRight: 0, width: 0, height: view.frame.height)
     }
     
     // MapViewの設定

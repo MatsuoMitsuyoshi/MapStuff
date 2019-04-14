@@ -51,13 +51,7 @@ class LocationRequestController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureViewComponents()
-        
-//        if locationManager != nil {
-//            print("Did set location manager..")
-//        } else {
-//            print("Error setting location manager..")
-//        }
+        configureViewComponents()        
     }
     
     // MARK: - Selectors
