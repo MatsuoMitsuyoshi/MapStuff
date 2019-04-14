@@ -17,7 +17,17 @@ class SearchInputView: UIView {
     
     var searchBar: UISearchBar!
     var tableView: UITableView!
-    
+    var expansionState: ExpansionState!
+
+    // SearchBarのスワイプ状態
+    enum ExpansionState {
+        case NotExpanded
+        case PartiallyExpanded
+        case FullyExpanded
+        case ExpandToSearch
+    }
+
+    // SearchBarのツマミ
     let indicatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
@@ -32,14 +42,68 @@ class SearchInputView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-            configureViewComponents()
+        configureViewComponents()
+        
+        expansionState = .NotExpanded
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Selectors
+    // SearchBarのスワイプアクション
+    @objc func handleSwipeGesture(sender: UISwipeGestureRecognizer) {
+
+        // Swipe Up
+        if sender.direction == .up {
+            
+            if expansionState == .NotExpanded {
+
+                animateInputView(targetPosition: self.frame.origin.y - 250) { (_) in
+                    self.expansionState = .PartiallyExpanded
+                }
+            }
+
+            if expansionState == .PartiallyExpanded {
+
+                animateInputView(targetPosition: self.frame.origin.y - 500) { (_) in
+                    self.expansionState = .FullyExpanded
+                }
+            }
+        } else {
+            
+            // Swipe Down
+            if expansionState == .FullyExpanded {
+
+                animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+                    self.expansionState = .PartiallyExpanded
+
+                }
+            }
+            
+            
+            if expansionState == .PartiallyExpanded {
+
+                animateInputView(targetPosition: self.frame.origin.y + 250) { (_) in
+                    self.expansionState = .NotExpanded
+                }
+            }
+        }
+    }
+    
+    
     
     // MARK: - Helper Functions
+    
+    // SearchBarのUp/Downのアニメーション処理
+    func animateInputView(targetPosition: CGFloat, completion: @escaping(Bool) -> ()) {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+            self.frame.origin.y = targetPosition
+        }, completion: completion)
+    }
+
     // Viewの構成要素
     func configureViewComponents() {
         backgroundColor = .white
@@ -50,6 +114,7 @@ class SearchInputView: UIView {
         
         configureSearchBar()
         configureTableView()
+        configureGestureRecognizers()
     }
     
     // SearchBarの構成
@@ -77,6 +142,17 @@ class SearchInputView: UIView {
         tableView.anchor(top: searchBar.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 0, paddingBottom: 100, paddingRight: 0, width: 0, height: 0)
     }
     
+    // SearchBarのスワイプ構成
+    func configureGestureRecognizers() {
+        
+        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture))
+        swipeUp.direction = .up
+        addGestureRecognizer(swipeUp)
+
+        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture))
+        swipeDown.direction = .down
+        addGestureRecognizer(swipeDown)
+    }
 }
 
 // MARK: - UITableViewDataSource/Delegate

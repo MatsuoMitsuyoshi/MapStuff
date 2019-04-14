@@ -36,6 +36,7 @@ class MapController: UIViewController {
     func configureViewComponents() {
         view.backgroundColor = .white
         configureMapView()
+    
         
         searchInputView = SearchInputView()
         view.addSubview(searchInputView)
