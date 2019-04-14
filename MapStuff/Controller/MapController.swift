@@ -18,6 +18,13 @@ class MapController: UIViewController {
     var locationManager: CLLocationManager!
     var searchInputView: SearchInputView!
 
+    let centerMapButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(#imageLiteral(resourceName: "location-arrow-flat").withRenderingMode(.alwaysOriginal), for: .normal)
+        button.addTarget(self, action: #selector(handleCenterLocation), for: .touchUpInside)
+        return button
+    }()
+    
     // MARK: - Init
 
     override func viewDidLoad() {
@@ -31,6 +38,13 @@ class MapController: UIViewController {
         centerMapOnUserLocation()
     }
 
+    // MARK: - Selectors
+    
+    @objc func handleCenterLocation() {
+        centerMapOnUserLocation()
+    }
+
+    
     // MARK: - Hepler Functions
     // viewの構成要素
     func configureViewComponents() {
@@ -41,6 +55,9 @@ class MapController: UIViewController {
         searchInputView = SearchInputView()
         view.addSubview(searchInputView)
         searchInputView.anchor(top: nil, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: -(view.frame.height - 88), paddingRight: 0, width: 0, height: view.frame.height)
+        
+        view.addSubview(centerMapButton)
+        centerMapButton.anchor(top: nil, left: nil, bottom: searchInputView.topAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 16, paddingRight: 16, width: 50, height: 50)
     }
     
     // MapViewの設定

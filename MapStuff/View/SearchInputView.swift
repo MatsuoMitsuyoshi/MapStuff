@@ -58,34 +58,27 @@ class SearchInputView: UIView {
 
         // Swipe Up
         if sender.direction == .up {
-            
             if expansionState == .NotExpanded {
-
                 animateInputView(targetPosition: self.frame.origin.y - 250) { (_) in
                     self.expansionState = .PartiallyExpanded
                 }
             }
-
             if expansionState == .PartiallyExpanded {
-
                 animateInputView(targetPosition: self.frame.origin.y - 500) { (_) in
                     self.expansionState = .FullyExpanded
                 }
             }
         } else {
-            
             // Swipe Down
             if expansionState == .FullyExpanded {
+                self.searchBar.endEditing(true)
+                self.searchBar.showsCancelButton = false
 
                 animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
                     self.expansionState = .PartiallyExpanded
-
                 }
             }
-            
-            
             if expansionState == .PartiallyExpanded {
-
                 animateInputView(targetPosition: self.frame.origin.y + 250) { (_) in
                     self.expansionState = .NotExpanded
                 }
@@ -121,7 +114,7 @@ class SearchInputView: UIView {
     func configureSearchBar() {
         searchBar = UISearchBar()
         searchBar.placeholder = "Search for a place or address"
-//        searchBar.delegate = self
+        searchBar.delegate = self
         searchBar.barStyle = .black
         searchBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         
@@ -152,6 +145,44 @@ class SearchInputView: UIView {
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture))
         swipeDown.direction = .down
         addGestureRecognizer(swipeDown)
+    }
+}
+
+// MARK: - UISearchBarDelegate
+
+extension SearchInputView: UISearchBarDelegate {
+    
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        guard let searchText = searchBar.text else { return }
+//        delegate?.handleSearch(withSearchText: searchText)
+//        dismissOnSearch()
+//    }
+//
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+
+        if expansionState == .NotExpanded {
+
+            animateInputView(targetPosition: self.frame.origin.y - 750) { (_) in
+                self.expansionState = .FullyExpanded
+            }
+        }
+
+        if expansionState == .PartiallyExpanded {
+
+            animateInputView(targetPosition: self.frame.origin.y - 500) { (_) in
+                self.expansionState = .FullyExpanded
+            }
+        }
+
+        searchBar.showsCancelButton = true
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        searchBar.endEditing(true)
+        animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+            self.expansionState = .PartiallyExpanded
+        }
     }
 }
 
