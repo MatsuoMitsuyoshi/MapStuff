@@ -7,10 +7,13 @@
 //
 
 import UIKit
+import CoreLocation
 
 class LocationRequestController: UIViewController {
     
     // MARK: - Properties
+    
+    var locationManager: CLLocationManager?
 
     let imageView: UIImageView = {
         let iv = UIImageView()
@@ -38,7 +41,7 @@ class LocationRequestController: UIViewController {
         button.setTitle("Enable Location", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
-        button.backgroundColor = .blue
+        button.backgroundColor = .mainBlue()
         button.layer.cornerRadius = 5
         button.addTarget(self, action: #selector(handleRequestLocation), for: .touchUpInside)
         return button
@@ -49,12 +52,21 @@ class LocationRequestController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureViewComponents()
+        
+//        if locationManager != nil {
+//            print("Did set location manager..")
+//        } else {
+//            print("Error setting location manager..")
+//        }
     }
     
     // MARK: - Selectors
     
     @objc func handleRequestLocation() {
-        print("Request location here..")
+        guard let locationManager = self.locationManager else { return }
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+//        print("Request location here..")
     }
 
     // MARK: - Helper Functions
@@ -76,4 +88,17 @@ class LocationRequestController: UIViewController {
     }
 
 
+}
+
+extension LocationRequestController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        guard locationManager?.location != nil else {
+            print("Error setting location..")
+            return
+        }
+        
+        dismiss(animated: true, completion: nil)
+    }
+    
 }

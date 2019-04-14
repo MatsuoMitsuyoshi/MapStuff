@@ -32,6 +32,8 @@ class MapController: UIViewController {
         view.backgroundColor = .white
         
         configureMapView()
+        enableLocationServices()
+        
     }
     
     // MapViewの設定
@@ -57,7 +59,10 @@ extension MapController: CLLocationManagerDelegate {
             print("Location auth status is NOT DETERMINED") // 許可、不許可を選択していない
             // UI更新処理（許可・不許可の選択なくとも非同期でUI更新）
             DispatchQueue.main.async {
-                self.present(LocationRequestController(), animated: true, completion: nil)
+                
+                let controller = LocationRequestController()
+                controller.locationManager = self.locationManager
+                self.present(controller, animated: true, completion: nil)
             }
             
         case .restricted:
