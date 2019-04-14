@@ -18,8 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         window = UIWindow()
         window?.makeKeyAndVisible()
-//        window?.rootViewController = MapController()
-        window?.rootViewController = LocationRequestController()
+        window?.rootViewController = MapController()
+//        window?.rootViewController = LocationRequestController()
 
 
 
