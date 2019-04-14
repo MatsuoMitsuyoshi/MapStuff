@@ -25,6 +25,10 @@ class MapController: UIViewController {
         configureViewComponents()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        centerMapOnUserLocation()
+    }
 
     // MARK: - Hepler Functions
     // viewの構成要素
@@ -46,6 +50,20 @@ class MapController: UIViewController {
         mapView.addConstraintsToFillView(view: view)
     }
 }
+
+// MARK: - MapKit helper Functions
+
+extension MapController {
+    
+    func centerMapOnUserLocation() {
+        
+        guard let coordinates = locationManager.location?.coordinate else { return }
+        let coordinateRegion = MKCoordinateRegion(center: coordinates, latitudinalMeters: 2000, longitudinalMeters: 2000)
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
 
 extension MapController: CLLocationManagerDelegate {
     

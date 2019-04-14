@@ -91,7 +91,7 @@ class LocationRequestController: UIViewController {
 }
 
 extension LocationRequestController: CLLocationManagerDelegate {
-    
+    // 位置情報の認証変更時処理
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         guard locationManager?.location != nil else {
             print("Error setting location..")
