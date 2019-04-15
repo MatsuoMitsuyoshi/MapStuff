@@ -77,6 +77,19 @@ class MapController: UIViewController {
 
 extension MapController: SearchInputViewDelegate {
     
+    func handleSearch(withSearchText searchText: String) {
+        
+        guard let coordinate = locationManager.location?.coordinate else { return }
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2000, longitudinalMeters: 2000)
+        
+            searchBy(naturalLaunguageQuery: searchText, region: region, coordinate: coordinate) { (response, error) in
+                
+                response?.mapItems.forEach({ (mapItem) in
+                    print(mapItem.name)
+                })
+            }
+        }
+    
     func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool) {
         
         switch expansionState {
@@ -119,6 +132,25 @@ extension MapController {
         guard let coordinates = locationManager.location?.coordinate else { return }
         let coordinateRegion = MKCoordinateRegion(center: coordinates, latitudinalMeters: 2000, longitudinalMeters: 2000)
         mapView.setRegion(coordinateRegion, animated: true)
+    }
+    
+    func searchBy(naturalLaunguageQuery: String, region: MKCoordinateRegion, coordinate: CLLocationCoordinate2D, completion: @escaping (_ response: MKLocalSearch.Response?, _ error: NSError?) -> ()) {
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = naturalLaunguageQuery
+        request.region = region
+        
+        let search = MKLocalSearch(request: request)
+        search.start { (response, error) in
+            
+            guard let response = response else {
+                completion(nil, error! as NSError)
+                return
+            }
+            
+            completion(response, nil)
+            
+        }
     }
 }
 

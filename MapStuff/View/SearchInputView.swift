@@ -12,6 +12,7 @@ private let reuseIdentifier = "SearchCell"
 
 protocol SearchInputViewDelegate {
     func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool)
+    func handleSearch(withSearchText searchText: String)
 }
 
 class SearchInputView: UIView {
@@ -163,12 +164,14 @@ class SearchInputView: UIView {
 
 extension SearchInputView: UISearchBarDelegate {
     
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        guard let searchText = searchBar.text else { return }
-//        delegate?.handleSearch(withSearchText: searchText)
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text else { return }
+        delegate?.handleSearch(withSearchText: searchText)
 //        dismissOnSearch()
-//    }
-//
+
+
+    }
+
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
 
         if expansionState == .NotExpanded {
