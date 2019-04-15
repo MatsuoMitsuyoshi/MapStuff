@@ -7,10 +7,24 @@
 //
 
 import UIKit
+import MapKit
+
+protocol SearchCellDelegate {
+    func distanceFromUser(location: CLLocation) -> CLLocationDistance?
+}
+
 
 class SearchCell: UITableViewCell {
     
     // MARK: - Properties
+    
+    var delegate: SearchCellDelegate?
+    
+    var mapItem: MKMapItem? {
+        didSet {
+            configureCell()
+        }
+    }
     
     lazy var imageContainerView: UIView = {
         let view = UIView()
@@ -34,7 +48,6 @@ class SearchCell: UITableViewCell {
     let locationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 16)
-        label.text = "Coffee Shop"
         return label
     }()
     
@@ -42,7 +55,6 @@ class SearchCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = .lightGray
-        label.text = "0.2 ml"
         return label
     }()
 
@@ -71,6 +83,18 @@ class SearchCell: UITableViewCell {
     }
 
     // MARK: - Helper Functions
+    
+    func configureCell() {
+        locationTitleLabel.text = mapItem?.name
+        
+        let distanceFormatter = MKDistanceFormatter()
+        distanceFormatter.unitStyle = .abbreviated
+        
+        guard let mapItemLocation = mapItem?.placemark.location else { return }
+        guard let distanceFromUser = delegate?.distanceFromUser(location: mapItemLocation) else { return }
+        let distanceAsString = distanceFormatter.string(fromDistance: distanceFromUser)
+        locationDistanceLabel.text = distanceAsString
+    }
 
 
 

@@ -54,6 +54,8 @@ class MapController: UIViewController {
         // サーチバー
         searchInputView = SearchInputView()
         searchInputView.delegate = self
+        searchInputView.mapController = self
+        
         view.addSubview(searchInputView)
         searchInputView.anchor(top: nil, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: -(view.frame.height - 88), paddingRight: 0, width: 0, height: view.frame.height)
         
@@ -70,6 +72,20 @@ class MapController: UIViewController {
         
         view.addSubview(mapView)
         mapView.addConstraintsToFillView(view: view)
+    }
+}
+
+// MARK: - SearchCellDelegate
+
+extension MapController: SearchCellDelegate {
+    
+    func getDirections(forMapItem mapItem: MKMapItem) {
+        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+    }
+    
+    func distanceFromUser(location: CLLocation) -> CLLocationDistance? {
+        guard let userLocation = locationManager.location else { return nil }
+        return userLocation.distance(from: location)
     }
 }
 

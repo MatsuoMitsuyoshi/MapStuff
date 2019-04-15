@@ -25,10 +25,10 @@ class SearchInputView: UIView {
     var tableView: UITableView!
     var expansionState: ExpansionState!
     var delegate: SearchInputViewDelegate?
+    var mapController: MapController?
     
     var searchResults: [MKMapItem]? {
         didSet {
-            print(searchResults)
             tableView.reloadData()
         }
     }
@@ -226,6 +226,14 @@ extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! SearchCell
+        
+        if let controller = mapController {
+            cell.delegate = controller
+        }
+        
+        if let searchResults = searchResults {
+            cell.mapItem = searchResults[indexPath.row]
+        }
         return cell
     }
     
