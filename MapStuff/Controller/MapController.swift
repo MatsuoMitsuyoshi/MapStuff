@@ -85,10 +85,14 @@ extension MapController: SearchInputViewDelegate {
             searchBy(naturalLaunguageQuery: searchText, region: region, coordinate: coordinate) { (response, error) in
                 
                 response?.mapItems.forEach({ (mapItem) in
-                    print(mapItem.name)
+                    
+                    let annotation = MKPointAnnotation()
+                    annotation.title = mapItem.name
+                    annotation.coordinate = mapItem.placemark.coordinate
+                    self.mapView.addAnnotation(annotation)
                 })
             }
-        }
+    }
     
     func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool) {
         

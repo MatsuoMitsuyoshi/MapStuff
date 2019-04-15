@@ -102,6 +102,16 @@ class SearchInputView: UIView {
     
     // MARK: - Helper Functions
     
+    func dismissOnSearch() {
+        searchBar.showsCancelButton = false
+        searchBar.endEditing(true)
+        
+        animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+            self.delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
+            self.expansionState = .PartiallyExpanded
+        }
+    }
+    
     // SearchBarのUp/Downのアニメーション処理
     func animateInputView(targetPosition: CGFloat, completion: @escaping(Bool) -> ()) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
@@ -167,7 +177,7 @@ extension SearchInputView: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchBar.text else { return }
         delegate?.handleSearch(withSearchText: searchText)
-//        dismissOnSearch()
+        dismissOnSearch()
 
 
     }
@@ -193,13 +203,7 @@ extension SearchInputView: UISearchBarDelegate {
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = false
-        searchBar.endEditing(true)
-        
-        animateInputView(targetPosition: self.frame.origin.y + 450) { (_) in
-            self.delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
-            self.expansionState = .PartiallyExpanded
-        }
+        dismissOnSearch()
     }
 }
 
