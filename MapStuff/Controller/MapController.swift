@@ -171,6 +171,8 @@ extension MapController {
                 annotation.coordinate = mapItem.placemark.coordinate
                 self.mapView.addAnnotation(annotation)
             })
+            
+            self.searchInputView.searchResults = response?.mapItems
         }
     }
     

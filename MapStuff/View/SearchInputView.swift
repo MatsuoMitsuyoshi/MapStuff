@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 
 private let reuseIdentifier = "SearchCell"
 
@@ -24,6 +25,13 @@ class SearchInputView: UIView {
     var tableView: UITableView!
     var expansionState: ExpansionState!
     var delegate: SearchInputViewDelegate?
+    
+    var searchResults: [MKMapItem]? {
+        didSet {
+            print(searchResults)
+            tableView.reloadData()
+        }
+    }
     
     // SearchBarのスワイプ状態
     enum ExpansionState {
@@ -212,7 +220,8 @@ extension SearchInputView: UISearchBarDelegate {
 extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        guard let searchResults = searchResults else { return 0 }
+        return searchResults.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
