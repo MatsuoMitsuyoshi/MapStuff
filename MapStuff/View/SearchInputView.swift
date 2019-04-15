@@ -10,6 +10,10 @@ import UIKit
 
 private let reuseIdentifier = "SearchCell"
 
+protocol SearchInputViewDelegate {
+    func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool)
+}
+
 class SearchInputView: UIView {
     
     
@@ -18,13 +22,13 @@ class SearchInputView: UIView {
     var searchBar: UISearchBar!
     var tableView: UITableView!
     var expansionState: ExpansionState!
-
+    var delegate: SearchInputViewDelegate?
+    
     // SearchBarのスワイプ状態
     enum ExpansionState {
         case NotExpanded
         case PartiallyExpanded
         case FullyExpanded
-        case ExpandToSearch
     }
 
     // SearchBarのツマミ
@@ -58,13 +62,17 @@ class SearchInputView: UIView {
 
         // Swipe Up
         if sender.direction == .up {
+
             if expansionState == .NotExpanded {
+                delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
                 animateInputView(targetPosition: self.frame.origin.y - 250) { (_) in
                     self.expansionState = .PartiallyExpanded
                 }
             }
+            
             if expansionState == .PartiallyExpanded {
-                animateInputView(targetPosition: self.frame.origin.y - 500) { (_) in
+                delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: true)
+                animateInputView(targetPosition: self.frame.origin.y - 450) { (_) in
                     self.expansionState = .FullyExpanded
                 }
             }
@@ -74,11 +82,14 @@ class SearchInputView: UIView {
                 self.searchBar.endEditing(true)
                 self.searchBar.showsCancelButton = false
 
-                animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+                animateInputView(targetPosition: self.frame.origin.y + 450) { (_) in
+                    self.delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
                     self.expansionState = .PartiallyExpanded
                 }
             }
+
             if expansionState == .PartiallyExpanded {
+                delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
                 animateInputView(targetPosition: self.frame.origin.y + 250) { (_) in
                     self.expansionState = .NotExpanded
                 }
@@ -161,26 +172,29 @@ extension SearchInputView: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
 
         if expansionState == .NotExpanded {
-
-            animateInputView(targetPosition: self.frame.origin.y - 750) { (_) in
+            delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: true)
+            animateInputView(targetPosition: self.frame.origin.y - 700) { (_) in
                 self.expansionState = .FullyExpanded
             }
         }
 
         if expansionState == .PartiallyExpanded {
-
-            animateInputView(targetPosition: self.frame.origin.y - 500) { (_) in
+            delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: true)
+            animateInputView(targetPosition: self.frame.origin.y - 450) { (_) in
                 self.expansionState = .FullyExpanded
             }
         }
 
         searchBar.showsCancelButton = true
+
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
         searchBar.endEditing(true)
-        animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+        
+        animateInputView(targetPosition: self.frame.origin.y + 450) { (_) in
+            self.delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: false)
             self.expansionState = .PartiallyExpanded
         }
     }

@@ -51,11 +51,13 @@ class MapController: UIViewController {
         view.backgroundColor = .white
         configureMapView()
     
-        
+        // サーチバー
         searchInputView = SearchInputView()
+        searchInputView.delegate = self
         view.addSubview(searchInputView)
         searchInputView.anchor(top: nil, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: -(view.frame.height - 88), paddingRight: 0, width: 0, height: view.frame.height)
         
+        // センターマップボタン
         view.addSubview(centerMapButton)
         centerMapButton.anchor(top: nil, left: nil, bottom: searchInputView.topAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 16, paddingRight: 16, width: 50, height: 50)
     }
@@ -70,6 +72,43 @@ class MapController: UIViewController {
         mapView.addConstraintsToFillView(view: view)
     }
 }
+
+// MARK: - SearchInputViewDelegate
+
+extension MapController: SearchInputViewDelegate {
+    
+    func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool) {
+        
+        switch expansionState {
+        case .NotExpanded:
+            UIView.animate(withDuration: 0.25) {
+                self.centerMapButton.frame.origin.y -= 250
+            }
+
+            if hideButton {
+                self.centerMapButton.alpha = 0
+
+            } else {
+                self.centerMapButton.alpha = 1
+            }
+
+        case .PartiallyExpanded:
+            if hideButton {
+                self.centerMapButton.alpha = 0
+            } else {
+                UIView.animate(withDuration: 0.25) {
+                    self.centerMapButton.frame.origin.y += 250
+                }
+            }
+ 
+        case .FullyExpanded:
+            UIView.animate(withDuration: 0.25) {
+                self.centerMapButton.alpha = 1
+            }
+        }
+    }
+}
+
 
 // MARK: - MapKit helper Functions
 
