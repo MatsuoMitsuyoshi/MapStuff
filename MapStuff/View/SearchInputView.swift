@@ -237,4 +237,36 @@ extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        guard var searchResults = searchResults else { return }
+        let selectedMapItem = searchResults[indexPath.row]
+//        delegate?.selectedAnnotation(withMapItem: selectedMapItem)
+        
+        // FIXME: Refactor
+        
+        if expansionState == .FullyExpanded {
+            self.searchBar.endEditing(true)
+            self.searchBar.showsCancelButton = false
+            
+            animateInputView(targetPosition: self.frame.origin.y + 500) { (_) in
+                self.delegate?.animateCenterMapButton(expansionState: self.expansionState, hideButton: true)
+                self.expansionState = .PartiallyExpanded
+                
+            }
+        }
+        
+        // 選んだセルを最上部に移動して、リストを書き換え
+        searchResults.remove(at: indexPath.row)
+        searchResults.insert(selectedMapItem, at: 0)
+        self.searchResults = searchResults
+        
+        // 選んだセルにボタンを表示
+        let firstIndexPath = IndexPath(row: 0, section: 0)
+        let cell = tableView.cellForRow(at: firstIndexPath) as! SearchCell
+        cell.animateButtonIn()
+//
+//        delegate?.addPolyline(forDestinationMapItem: selectedMapItem)
+        
+    }
 }

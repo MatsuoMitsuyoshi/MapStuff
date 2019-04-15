@@ -26,6 +26,18 @@ class SearchCell: UITableViewCell {
         }
     }
     
+    lazy var directionsButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.setTitle("Go", for: .normal)
+        button.backgroundColor = .directionsGreen()
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action: #selector(handleGetDirections), for: .touchUpInside)
+        button.layer.cornerRadius = 5
+        button.alpha = 0
+        return button
+    }()
+    
     lazy var imageContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .mainPink()
@@ -76,14 +88,40 @@ class SearchCell: UITableViewCell {
         addSubview(locationDistanceLabel)
         locationDistanceLabel.anchor(top: nil, left: imageContainerView.rightAnchor, bottom: imageContainerView.bottomAnchor, right: nil, paddingTop: 0, paddingLeft: 8, paddingBottom: 0, paddingRight: 0, width: 0, height: 0)
         
+        addSubview(directionsButton)
+        let buttonDimension: CGFloat = 50
+        directionsButton.anchor(top: nil, left: nil, bottom: nil, right: rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 8, width: buttonDimension, height: buttonDimension)
+        directionsButton.centerY(inView: self)
+        
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Selectors
+
+    @objc func handleGetDirections() {
+//        guard let mapItem = self.mapItem else { return }
+//        delegate?.getDirections(forMapItem: mapItem)
+        print("Get directions..")
+    }
 
     // MARK: - Helper Functions
     
+    // アニメーションボタン
+    func animateButtonIn() {
+        directionsButton.transform = CGAffineTransform(scaleX: 0.25, y: 0.25)
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+            self.directionsButton.alpha = 1
+            self.directionsButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        }) { (_) in
+            self.directionsButton.transform = .identity
+        }
+    }
+    
+    // セルの構成
     func configureCell() {
         locationTitleLabel.text = mapItem?.name
         
@@ -95,9 +133,5 @@ class SearchCell: UITableViewCell {
         let distanceAsString = distanceFormatter.string(fromDistance: distanceFromUser)
         locationDistanceLabel.text = distanceAsString
     }
-
-
-
-    // MARK: -
 
 }
