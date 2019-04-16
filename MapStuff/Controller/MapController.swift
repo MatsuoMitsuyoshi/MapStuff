@@ -183,8 +183,10 @@ extension MapController: SearchInputViewDelegate {
             }
  
         case .FullyExpanded:
-            UIView.animate(withDuration: 0.25) {
-                self.centerMapButton.alpha = 1
+            if !hideButton {
+                UIView.animate(withDuration: 0.25) {
+                    self.centerMapButton.alpha = 1
+                }
             }
         }
     }
