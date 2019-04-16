@@ -11,6 +11,7 @@ import MapKit
 
 protocol SearchCellDelegate {
     func distanceFromUser(location: CLLocation) -> CLLocationDistance?
+    func getDirections(forMapItem mapItem: MKMapItem)
 }
 
 
@@ -101,10 +102,10 @@ class SearchCell: UITableViewCell {
     
     // MARK: - Selectors
 
+    // 径路取得
     @objc func handleGetDirections() {
-//        guard let mapItem = self.mapItem else { return }
-//        delegate?.getDirections(forMapItem: mapItem)
-        print("Get directions..")
+        guard let mapItem = self.mapItem else { return }
+        delegate?.getDirections(forMapItem: mapItem)
     }
 
     // MARK: - Helper Functions

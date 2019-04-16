@@ -17,6 +17,7 @@ class MapController: UIViewController {
     var mapView: MKMapView!
     var locationManager: CLLocationManager!
     var searchInputView: SearchInputView!
+    var route: MKRoute?
 
     let centerMapButton: UIButton = {
         let button = UIButton(type: .system)
@@ -68,6 +69,7 @@ class MapController: UIViewController {
     func configureMapView() {
         mapView = MKMapView()
         mapView.showsUserLocation = true
+        mapView.delegate = self
         mapView.userTrackingMode = .follow
         
         view.addSubview(mapView)
@@ -79,10 +81,11 @@ class MapController: UIViewController {
 
 extension MapController: SearchCellDelegate {
     
+    // 径路取得
     func getDirections(forMapItem mapItem: MKMapItem) {
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
     }
-    
+    // ユーザーからの距離取得
     func distanceFromUser(location: CLLocation) -> CLLocationDistance? {
         guard let userLocation = locationManager.location else { return nil }
         return userLocation.distance(from: location)
@@ -93,6 +96,25 @@ extension MapController: SearchCellDelegate {
 
 extension MapController: SearchInputViewDelegate {
     
+    func selectedAnnotation(withMapItem mapItem: MKMapItem) {
+        mapView.annotations.forEach { (annotation) in
+            if annotation.title == mapItem.name {
+                self.mapView.selectAnnotation(annotation, animated: true)
+//                self.zoomToFit(selectedAnnotation: annotation)
+//                self.selectedAnnotation = annotation
+//
+//                UIView.animate(withDuration: 0.5, animations: {
+//                    self.removeOverlaysButton.alpha = 1
+//                    self.centerMapButton.alpha = 0
+//                })
+            }
+        }
+    }
+    
+    func addPolyline(forDestinationMapItem destinationMapItem: MKMapItem) {
+        generatePolyline(forDestinationMapItem: destinationMapItem)
+    }
+        
     func handleSearch(withSearchText searchText: String) {
         
         removeAnnotations()
@@ -131,10 +153,49 @@ extension MapController: SearchInputViewDelegate {
     }
 }
 
+// MARK: - MKMapViewDelegate
+
+extension MapController: MKMapViewDelegate {
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        
+        if let route = self.route {
+            let polyline = route.polyline
+            let lineRenderer = MKPolylineRenderer(overlay: polyline)
+            lineRenderer.strokeColor = .mainBlue()
+            lineRenderer.lineWidth = 3
+            return lineRenderer
+        }
+        
+        return MKOverlayRenderer()
+    }
+    
+}
 
 // MARK: - MapKit helper Functions
 
 extension MapController {
+    
+    // 径路のルート表示
+    func generatePolyline(forDestinationMapItem destinationMapItem: MKMapItem) {
+        
+        let request = MKDirections.Request()
+        request.source = MKMapItem.forCurrentLocation()
+        request.destination = destinationMapItem
+        request.transportType = .walking
+        
+        let directions = MKDirections(request: request)
+        
+        // 径路計算
+        directions.calculate { (response, error) in
+            
+            guard let response = response else { return }
+            
+            self.route = response.routes[0]
+            guard let polyline = self.route?.polyline else { return }
+            self.mapView.addOverlay(polyline)
+        }
+    }
     
     func centerMapOnUserLocation(shouldLoadAnnotations: Bool) {
         

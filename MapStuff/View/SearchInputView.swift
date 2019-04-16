@@ -14,6 +14,8 @@ private let reuseIdentifier = "SearchCell"
 protocol SearchInputViewDelegate {
     func animateCenterMapButton(expansionState: SearchInputView.ExpansionState, hideButton: Bool)
     func handleSearch(withSearchText searchText: String)
+    func addPolyline(forDestinationMapItem destinationMapItem: MKMapItem)
+    func selectedAnnotation(withMapItem mapItem: MKMapItem)
 }
 
 class SearchInputView: UIView {
@@ -109,7 +111,7 @@ class SearchInputView: UIView {
     
     
     // MARK: - Helper Functions
-    
+    // 検索結果の削除
     func dismissOnSearch() {
         searchBar.showsCancelButton = false
         searchBar.endEditing(true)
@@ -182,6 +184,7 @@ class SearchInputView: UIView {
 
 extension SearchInputView: UISearchBarDelegate {
     
+    // サーチバークリック時の処理
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchBar.text else { return }
         delegate?.handleSearch(withSearchText: searchText)
@@ -190,6 +193,7 @@ extension SearchInputView: UISearchBarDelegate {
 
     }
 
+    // 検索テキスト入力時の処理
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
 
         if expansionState == .NotExpanded {
@@ -210,6 +214,7 @@ extension SearchInputView: UISearchBarDelegate {
 
     }
 
+    // 検索入力キャンセルボタンクリック時の処理
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         dismissOnSearch()
     }
@@ -219,11 +224,13 @@ extension SearchInputView: UISearchBarDelegate {
 
 extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
     
+    // セルの数
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let searchResults = searchResults else { return 0 }
         return searchResults.count
     }
     
+    // セルの設定
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! SearchCell
         
@@ -237,11 +244,12 @@ extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         guard var searchResults = searchResults else { return }
         let selectedMapItem = searchResults[indexPath.row]
-//        delegate?.selectedAnnotation(withMapItem: selectedMapItem)
+        delegate?.selectedAnnotation(withMapItem: selectedMapItem)
         
         // FIXME: Refactor
         
@@ -265,8 +273,9 @@ extension SearchInputView: UITableViewDelegate, UITableViewDataSource {
         let firstIndexPath = IndexPath(row: 0, section: 0)
         let cell = tableView.cellForRow(at: firstIndexPath) as! SearchCell
         cell.animateButtonIn()
-//
-//        delegate?.addPolyline(forDestinationMapItem: selectedMapItem)
+
+        // ルートの表示
+        delegate?.addPolyline(forDestinationMapItem: selectedMapItem)
         
     }
 }
