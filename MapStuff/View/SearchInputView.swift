@@ -28,7 +28,9 @@ class SearchInputView: UIView {
     var expansionState: ExpansionState!
     var delegate: SearchInputViewDelegate?
     var mapController: MapController?
-    
+
+    var directionsEnabled = false
+
     var searchResults: [MKMapItem]? {
         didSet {
             tableView.reloadData()
@@ -71,6 +73,11 @@ class SearchInputView: UIView {
     // SearchBarのスワイプアクション
     @objc func handleSwipeGesture(sender: UISwipeGestureRecognizer) {
 
+        if directionsEnabled {
+            print("Swiping disabled..")
+            return
+        }
+        
         // Swipe Up
         if sender.direction == .up {
 
@@ -111,6 +118,20 @@ class SearchInputView: UIView {
     
     
     // MARK: - Helper Functions
+    
+    // 選択径路削除ボタン
+    func disableViewInteraction(directionsEnabled: Bool) {
+        self.directionsEnabled = directionsEnabled
+
+        if directionsEnabled {
+            tableView.allowsSelection = false
+            searchBar.isUserInteractionEnabled = false
+        } else {
+            tableView.allowsSelection = true
+            searchBar.isUserInteractionEnabled = true
+        }
+    }
+    
     // 検索結果の削除
     func dismissOnSearch() {
         searchBar.showsCancelButton = false

@@ -18,11 +18,21 @@ class MapController: UIViewController {
     var locationManager: CLLocationManager!
     var searchInputView: SearchInputView!
     var route: MKRoute?
-
+    var selectedAnnotation: MKAnnotation?
+    
     let centerMapButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(#imageLiteral(resourceName: "location-arrow-flat").withRenderingMode(.alwaysOriginal), for: .normal)
         button.addTarget(self, action: #selector(handleCenterLocation), for: .touchUpInside)
+        return button
+    }()
+
+    let removeOverlaysButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(#imageLiteral(resourceName: "baseline_clear_white_36pt_1x").withRenderingMode(.alwaysOriginal), for: .normal)
+        button.backgroundColor = .red
+        button.addTarget(self, action: #selector(handleRemoveOverlays), for: .touchUpInside)
+        button.alpha = 0
         return button
     }()
     
@@ -40,6 +50,26 @@ class MapController: UIViewController {
     }
 
     // MARK: - Selectors
+    
+    @objc func handleRemoveOverlays() {
+        searchInputView.directionsEnabled = false
+
+        UIView.animate(withDuration: 0.5) {
+            self.removeOverlaysButton.alpha = 0
+            self.centerMapButton.alpha = 1
+        }
+
+        if mapView.overlays.count > 0 {
+            self.mapView.removeOverlay(mapView.overlays[0])
+            centerMapOnUserLocation(shouldLoadAnnotations: false)
+        }
+
+        searchInputView.disableViewInteraction(directionsEnabled: false)
+
+        guard let selectedAnno = self.selectedAnnotation else { return }
+        mapView.deselectAnnotation(selectedAnno, animated: true)
+        
+    }
     
     @objc func handleCenterLocation() {
         centerMapOnUserLocation(shouldLoadAnnotations: false)
@@ -63,6 +93,12 @@ class MapController: UIViewController {
         // センターマップボタン
         view.addSubview(centerMapButton)
         centerMapButton.anchor(top: nil, left: nil, bottom: searchInputView.topAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 16, paddingRight: 16, width: 50, height: 50)
+        
+        // 径路クリアボタン
+        view.addSubview(removeOverlaysButton)
+        let dimension: CGFloat = 50
+        removeOverlaysButton.anchor(top: nil, left: view.leftAnchor, bottom: searchInputView.topAnchor, right: nil, paddingTop: 0, paddingLeft: 16, paddingBottom: 268, paddingRight: 0, width: dimension, height: dimension)
+        removeOverlaysButton.layer.cornerRadius = dimension / 2
     }
     
     // MapViewの設定
@@ -100,23 +136,24 @@ extension MapController: SearchInputViewDelegate {
         mapView.annotations.forEach { (annotation) in
             if annotation.title == mapItem.name {
                 self.mapView.selectAnnotation(annotation, animated: true)
-//                self.zoomToFit(selectedAnnotation: annotation)
-//                self.selectedAnnotation = annotation
-//
-//                UIView.animate(withDuration: 0.5, animations: {
-//                    self.removeOverlaysButton.alpha = 1
-//                    self.centerMapButton.alpha = 0
-//                })
+                self.zoomToFit(selectedAnnotation: annotation)
+                self.selectedAnnotation = annotation
+
+                UIView.animate(withDuration: 0.5, animations: {
+                    self.removeOverlaysButton.alpha = 1
+                    self.centerMapButton.alpha = 0
+                })
             }
         }
     }
     
     func addPolyline(forDestinationMapItem destinationMapItem: MKMapItem) {
+        searchInputView.disableViewInteraction(directionsEnabled: true)
+
         generatePolyline(forDestinationMapItem: destinationMapItem)
     }
-        
+    
     func handleSearch(withSearchText searchText: String) {
-        
         removeAnnotations()
         loadAnnotations(withSearchQuery: searchText)
     }
